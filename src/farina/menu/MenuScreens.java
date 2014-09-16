@@ -4,6 +4,7 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import de.lessvoid.nifty.Nifty;
+import farina.Main;
 
 /**
  *
@@ -13,39 +14,69 @@ public class MenuScreens extends AbstractAppState {
 
     private Nifty nifty;
     private MainMenuController mainMenuController;
-
-    public MenuScreens() {
-        initController();
-        loadNiftyXML();
-        registerController();
-    }
+    private ConfigMenuController configMenuController;
+    AppStateManager stateManager;
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
-        super.initialize(stateManager, app); //To change body of generated methods, choose Tools | Templates.
+        super.initialize(stateManager, app);
+        this.stateManager = stateManager;
+        nifty = ((Main) app).getNifty();
+        init("menu_main");
+    }
+
+    void init() {
+        initController();
+        loadNiftyXML();
+        registerController();
+        attachController();
+    }
+
+    public void init(final String screen) {
+        new Thread(new Runnable() {
+            public void run() {
+                init();
+                nifty.gotoScreen(screen);
+            }
+        }).start();
     }
 
     @Override
-    public void stateAttached(AppStateManager stateManager) {
-        super.stateAttached(stateManager);
-        stateManager.attach(mainMenuController);
-    }
-
-    @Override
-    public void stateDetached(AppStateManager stateManager) {
-        super.stateDetached(stateManager);
+    public void cleanup() {
+        super.cleanup();
         stateManager.detach(mainMenuController);
+        stateManager.detach(configMenuController);
     }
 
     private void initController() {
         mainMenuController = new MainMenuController();
+        configMenuController = new ConfigMenuController();
     }
 
     private void loadNiftyXML() {
-        nifty.addXml("Interface/Menu/mainmenu.xml");
+        nifty.addXml("Interface/Menu/menu_main.xml");
+        nifty.addXml("Interface/Menu/menu_config.xml");
     }
 
     private void registerController() {
         nifty.registerScreenController(mainMenuController);
+        nifty.registerScreenController(configMenuController);
+    }
+
+    private void attachController() {
+        stateManager.attach(mainMenuController);
+        stateManager.attach(configMenuController);
+    }
+
+    public void gotoScreen(String screen) {
+        nifty.gotoScreen(screen);
+    }
+
+    public void screenMainMenu() {
+        gotoScreen("menu_main");
+    }
+
+    public void screenConfigMenu() {
+        gotoScreen("menu_config");
     }
 }
