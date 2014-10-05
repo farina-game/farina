@@ -5,6 +5,8 @@ import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import de.lessvoid.nifty.Nifty;
+import farina.game.Level;
+import farina.game.LevelLoader;
 import farina.menu.MenuScreens;
 
 /**
@@ -35,6 +37,10 @@ public class Main extends SimpleApplication {
         initNiftyGui();
         menuScreens = new MenuScreens();
         getStateManager().attach(menuScreens);
+        
+        LevelLoader levelLoader = new LevelLoader(assetManager);
+        Level level = levelLoader.loadLevel("map");
+        this.rootNode.attachChild(level.getTerrain().getNode());
     }
 
     /**
